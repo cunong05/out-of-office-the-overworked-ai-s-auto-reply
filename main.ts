@@ -34,12 +34,16 @@ function verifyEntry(path: string, expected: string): void {
   }
 }
 
-const outDir = join(dirname(fileURLToPath(import.meta.url)), "output");
+const outDir = "/output"; // Absolute: the gate reads /output/entry.txt, never a repo-relative path.
 mkdirSync(outDir, { recursive: true });
 const outPath = join(outDir, "entry.txt");
+if (!outPath.startsWith("/output/")) {
+  throw new Error("outPath must be under /output");
+}
 writeFileSync(outPath, ENTRY, "utf8");
 
 // Read back and verify the bytes match exactly.
 verifyEntry(outPath, ENTRY);
+console.log(`Verified ${Buffer.from(ENTRY, "utf8").length} bytes byte-identical`);
 
 console.log(`Wrote ${ENTRY.length} characters to ${outPath}`);
